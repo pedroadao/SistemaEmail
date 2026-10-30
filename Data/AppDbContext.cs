@@ -20,39 +20,44 @@ public class AppDbContext : DbContext
 
             entity.HasKey(e => e.Id);
 
-            entity.Property(e => e.Id)
+            entity.Property(e => e.Id   )
+                .HasColumnName("id")
                 .UseIdentityAlwaysColumn();
 
             entity.Property(e => e.Assunto)
+                .HasColumnName("assunto")
                 .HasMaxLength(200)
                 .IsRequired();
 
             entity.Property(e => e.Destinatario)
-                .HasMaxLength(1000)
+                .HasColumnName("destinatario")
+                .HasMaxLength(200)
                 .IsRequired();
 
             entity.Property(e => e.Copia)
-                .HasMaxLength(1000);
+                .HasColumnName("copia")
+                .HasMaxLength(200);
 
-            entity.Property(e => e.CopiaOculta)
-                .HasMaxLength(1000);
+            entity.Property(e => e.CopiaOculta )
+                .HasColumnName("copia_oculta")
+                .HasMaxLength(200);
 
             entity.Property(e => e.Corpo)
-                .HasColumnType("text")
-                .IsRequired();
-
-            entity.Property(e => e.Status)
-                .HasMaxLength(20)
+                .HasColumnName("corpo")
+                .HasMaxLength(8000)
                 .IsRequired();
 
             entity.Property(e => e.CriadoEm)
+                .HasColumnName("criado_em")
                 .HasColumnType("timestamp with time zone");
 
             entity.Property(e => e.EnviadoEm)
+                .HasColumnName("enviado_em")
                 .HasColumnType("timestamp with time zone");
 
-            entity.Property(e => e.Erro)
-                .HasColumnType("text");
+            entity.Property(e => e.Status)
+                .HasColumnName("status")
+                .IsRequired();
 
             entity.HasIndex(e => new { e.Status, e.CriadoEm });
         });

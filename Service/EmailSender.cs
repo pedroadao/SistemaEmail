@@ -14,7 +14,7 @@ public class EmailSender(IConfiguration configuration)
 
         AdicionarDestinatarios(mensagem.To, email.Destinatario);
         AdicionarDestinatarios(mensagem.Cc, email.Copia);
-        AdicionarDestinatarios(mensagem.Bcc, email.CopiaOculta);
+        AdicionarDestinatarios(mensagem.Bcc, email.CopiaOculta );
 
         mensagem.Subject = email.Assunto;
         mensagem.Body = new TextPart("plain")
@@ -22,7 +22,10 @@ public class EmailSender(IConfiguration configuration)
             Text = email.Corpo
         };
 
-        using var cliente = new SmtpClient();
+        using var cliente = new SmtpClient
+        {
+            CheckCertificateRevocation = false
+        };
         var host = configuration["SMTP_HOST"]!;
         var porta = int.Parse(configuration["SMTP_PORT"] ?? "587");
 

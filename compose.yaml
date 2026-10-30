@@ -1,24 +1,4 @@
 services:
-  # postgres:
-  #   image: postgres:17
-  #   container_name: sistema-email-db
-  #   restart: unless-stopped
-  #   environment:
-  #     POSTGRES_DB: ${POSTGRES_DB}
-  #     POSTGRES_USER: ${POSTGRES_USER}
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test:
-  #       - CMD-SHELL
-  #       - pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
-  #     interval: 5s
-  #     timeout: 5s
-  #     retries: 10
-
   api:
     build: .
     container_name: email-api
@@ -27,12 +7,8 @@ services:
       - .env
     environment:
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      # O Postgres já roda em outro projeto (PedroMailSQL/compose.yaml, container mail-sql),
+      # exposto em localhost:5432. host.docker.internal alcança o host a partir do container.
+      ConnectionStrings__DefaultConnection: Host=host.docker.internal;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
     ports:
       - "8080:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-volumes:
-  postgres_data:

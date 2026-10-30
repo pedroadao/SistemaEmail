@@ -11,5 +11,4 @@ public class Email
     public int Status { get; set; } = 1;
     public DateTime CriadoEm { get; set; } = DateTime.UtcNow;
     public DateTime? EnviadoEm { get; set; }
-    public string? Erro { get; set; }
 }

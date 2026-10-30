@@ -41,7 +41,7 @@ public class EmailWorker(IServiceScopeFactory scopeFactory, ILogger<EmailWorker>
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var sender = scope.ServiceProvider.GetRequiredService<EmailSender>();
         var emails = await db.Emails
-            .Where(e => e.Status == "Pendente")
+            .Where(e => e.Status == 1)
             .OrderBy(e => e.CriadoEm)
             .Take(10)
             .ToListAsync(cancellationToken);
@@ -51,9 +51,8 @@ public class EmailWorker(IServiceScopeFactory scopeFactory, ILogger<EmailWorker>
             try
             {
                 await sender.EnviarAsync(email, cancellationToken);
-                email.Status = "Enviado";
+                email.Status = 2;
                 email.EnviadoEm = DateTime.UtcNow;
-                email.Erro = null;
 
                 logger.LogInformation("E-mail {EmailId} enviado.", email.Id);
             }
@@ -64,8 +63,7 @@ public class EmailWorker(IServiceScopeFactory scopeFactory, ILogger<EmailWorker>
             }
             catch (Exception ex)
             {
-                email.Status = "Falhou";
-                email.Erro = ex.Message;
+                email.Status = 3;
 
                 logger.LogError(ex, "Falha ao enviar o e-mail {EmailId}.", email.Id);
             }

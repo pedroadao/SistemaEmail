@@ -1,25 +1,31 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SistemaEmail.Data;
 using SistemaEmail.Models;
+using SistemaEmail.Models.Request;
+using SistemaEmail.Services.Interface;
 
 namespace SistemaEmail.Controllers;
 
-public record CriarEmailRequest(
-    string Assunto,
-    string Destinatario,
-    string? Copia,
-    string? CopiaOculta,
-    string Corpo
-);
 
 [ApiController]
 [Route("api/emails")]
-public class EmailController(AppDbContext db) : ControllerBase
+public class EmailController : ControllerBase
 {
-    [HttpGet]
-    public IActionResult Get()
+ private readonly AppDbContext _db;
+ private readonly IEmailService _emailService;
+
+    public EmailController(AppDbContext db, IEmailService emailService)
     {
-        return Ok(DateTime.Now);
+        _db = db;
+        _emailService = emailService;
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult>  Get()
+    {
+        var emails = await _db.Emails.ToListAsync();
+        return Ok(emails);
     }
 
     [HttpPost]
@@ -44,9 +50,18 @@ public class EmailController(AppDbContext db) : ControllerBase
             CriadoEm = DateTime.UtcNow
         };
 
-        db.Emails.Add(email);
-
-        await db.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _emailService.SendEmailAsync(email);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                mensagem = "Erro ao salvar o e-mail na fila.",
+                detalhes = ex.Message
+            });
+        }
 
         return Created(
             $"/api/emails/{email.Id}",
